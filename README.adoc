@@ -1,6 +1,6 @@
 = Vert.x Maven Starter
 
-This project is a fourth part of https://vertx.io/docs/guide-for-java-devs/#_client_side_web_application_using_angularjs/[A gentle guide to asynchronous programming with Eclipse Vert.x for Java developers].
+This project is a fourth part of https://vertx.io/docs/guide-for-java-devs[A gentle guide to asynchronous programming with Eclipse Vert.x for Java developers].
 
 This part covers "_Client-side web application using AngularJS_" and "_Real-time web features using cross-border messaging over the event bus_" chapters.
 
