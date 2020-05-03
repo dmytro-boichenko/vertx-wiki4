@@ -3,7 +3,7 @@ package io.vertx.guides.wiki;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
-import io.vertx.guides.wiki.db.WikiDatabaseVerticle;
+import io.vertx.guides.wiki.database.WikiDatabaseVerticle;
 import io.vertx.guides.wiki.http.HttpServerVerticle;
 import io.vertx.reactivex.core.AbstractVerticle;
 
