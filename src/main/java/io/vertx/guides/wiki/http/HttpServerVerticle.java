@@ -9,6 +9,7 @@ import io.vertx.reactivex.core.http.HttpServer;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
+import io.vertx.reactivex.ext.web.handler.StaticHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,8 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         router.mountSubRouter("/api", apiRouter());
+        router.mountSubRouter("/app", appRouter());
+        router.get("/").handler(context -> context.reroute("/app/index.html"));
 
         int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
         server
@@ -52,15 +55,28 @@ public class HttpServerVerticle extends AbstractVerticle {
     }
 
     private Router apiRouter() {
-        Router apiRouter = Router.router(vertx);
-        apiRouter.get("/pages").handler(this::apiRoot);
-        apiRouter.get("/pages/:id").handler(this::apiGetPage);
-        apiRouter.post().handler(BodyHandler.create());
-        apiRouter.post("/pages").handler(this::apiCreatePage);
-        apiRouter.put().handler(BodyHandler.create());
-        apiRouter.put("/pages/:id").handler(this::apiUpdatePage);
-        apiRouter.delete("/pages/:id").handler(this::apiDeletePage);
-        return apiRouter;
+        Router router = Router.router(vertx);
+        router.get("/pages").handler(this::apiRoot);
+        router.get("/pages/:id").handler(this::apiGetPage);
+        router.post().handler(BodyHandler.create());
+        router.post("/pages").handler(this::apiCreatePage);
+        router.put().handler(BodyHandler.create());
+        router.put("/pages/:id").handler(this::apiUpdatePage);
+        router.delete("/pages/:id").handler(this::apiDeletePage);
+        return router;
+    }
+
+    private Router appRouter() {
+        Router router = Router.router(vertx);
+        router.get("/*").handler(StaticHandler.create().setCachingEnabled(false));
+        router.post("/app/markdown").handler(context -> {
+            String html = Processor.process(context.getBodyAsString());
+            context.response()
+                .putHeader("Content-Type", "text/html")
+                .setStatusCode(200)
+                .end(html);
+        });
+        return router;
     }
 
     private void apiRoot(RoutingContext context) {
