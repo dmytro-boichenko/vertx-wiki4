@@ -3,6 +3,8 @@ package io.vertx.guides.wiki.http;
 import com.github.rjeschke.txtmark.Processor;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.guides.wiki.database.reactivex.WikiDatabaseService;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.http.HttpServer;
@@ -10,6 +12,7 @@ import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import io.vertx.reactivex.ext.web.handler.StaticHandler;
+import io.vertx.reactivex.ext.web.handler.sockjs.SockJSHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +40,14 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
+
+        SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
+        BridgeOptions bridgeOptions = new BridgeOptions()
+            .addInboundPermitted(new PermittedOptions().setAddress("app.markdown"))
+            .addOutboundPermitted(new PermittedOptions().setAddress("page.saved"));
+        sockJSHandler.bridge(bridgeOptions);
+        router.route("/eventbus/*").handler(sockJSHandler);
+
         router.mountSubRouter("/api", apiRouter());
         router.mountSubRouter("/app", appRouter());
         router.get("/").handler(context -> context.reroute("/app/index.html"));
