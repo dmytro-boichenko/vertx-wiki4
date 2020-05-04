@@ -15,7 +15,9 @@ public class MainVerticle extends AbstractVerticle {
     public void start(Promise<Void> promise) {
         init = vertx
             .rxDeployVerticle(new WikiDatabaseVerticle())
-            .flatMap(id -> vertx.rxDeployVerticle(new HttpServerVerticle(), new DeploymentOptions().setInstances(2)))
+//            .flatMap(id -> vertx.rxDeployVerticle(new HttpServerVerticle(), new DeploymentOptions().setInstances(2)))   // fails with "Can't specify > 1 instances for already created verticle"
+//            .flatMap(id -> vertx.rxDeployVerticle(HttpServerVerticle.class.getCanonicalName(), new DeploymentOptions().setInstances(2)))  // works
+            .flatMap(id -> vertx.rxDeployVerticle(HttpServerVerticle::new, new DeploymentOptions().setInstances(2)))  // works, because new instance is created via supplier
             .subscribe(id -> promise.complete(), promise::fail);
     }
 

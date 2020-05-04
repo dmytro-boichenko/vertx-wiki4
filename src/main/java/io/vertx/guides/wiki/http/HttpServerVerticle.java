@@ -69,7 +69,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     private Router appRouter() {
         Router router = Router.router(vertx);
         router.get("/*").handler(StaticHandler.create().setCachingEnabled(false));
-        router.post("/app/markdown").handler(context -> {
+        router.post("/markdown").handler(context -> {
             String html = Processor.process(context.getBodyAsString());
             context.response()
                 .putHeader("Content-Type", "text/html")
