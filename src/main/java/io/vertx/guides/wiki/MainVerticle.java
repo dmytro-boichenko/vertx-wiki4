@@ -3,6 +3,7 @@ package io.vertx.guides.wiki;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import io.vertx.guides.wiki.database.WikiDatabaseVerticle;
 import io.vertx.guides.wiki.http.HttpServerVerticle;
 import io.vertx.reactivex.core.AbstractVerticle;
@@ -10,6 +11,10 @@ import io.vertx.reactivex.core.AbstractVerticle;
 public class MainVerticle extends AbstractVerticle {
 
     private Disposable init;
+
+    public static void main(String[] args) {
+        Vertx.vertx().deployVerticle(new MainVerticle());
+    }
 
     @Override
     public void start(Promise<Void> promise) {
