@@ -48,6 +48,11 @@ public class HttpServerVerticle extends AbstractVerticle {
         sockJSHandler.bridge(bridgeOptions);
         router.route("/eventbus/*").handler(sockJSHandler);
 
+        vertx.eventBus().<String>consumer("app.markdown", msg -> {
+            String html = Processor.process(msg.body());
+            msg.reply(html);
+        });
+
         router.mountSubRouter("/api", apiRouter());
         router.mountSubRouter("/app", appRouter());
         router.get("/").handler(context -> context.reroute("/app/index.html"));
@@ -141,9 +146,14 @@ public class HttpServerVerticle extends AbstractVerticle {
         if (!validateJsonPageDocument(context, page, "markdown")) {
             return;
         }
-        dbService.rxSavePage(id, page.getString("markdown")).subscribe(
-            () -> apiResponse(context, 200, null, null),
-            t -> apiFailure(context, t));
+        dbService.rxSavePage(id, page.getString("markdown"))
+            .doOnComplete(() -> {
+                JsonObject event = new JsonObject()
+                    .put("id", id)
+                    .put("client", page.getString("client"));
+                vertx.eventBus().publish("page.saved", event);
+            })
+            .subscribe(() -> apiResponse(context, 200, null, null), t -> apiFailure(context, t));
     }
 
     private void apiDeletePage(RoutingContext context) {
