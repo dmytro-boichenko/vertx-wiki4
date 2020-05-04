@@ -36,6 +36,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         HttpServer server = vertx.createHttpServer();
 
         Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
         router.mountSubRouter("/api", apiRouter());
         router.mountSubRouter("/app", appRouter());
         router.get("/").handler(context -> context.reroute("/app/index.html"));
